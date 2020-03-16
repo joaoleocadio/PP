@@ -19,6 +19,8 @@ public class Ex07 {
         System.out.println("Insira divisor: ");
         int divisor = sc.nextInt();
         
+        
+        //D = d * q + r
         q = (Dividendo - r) / divisor;
         r = Dividendo - (divisor * q);
         
