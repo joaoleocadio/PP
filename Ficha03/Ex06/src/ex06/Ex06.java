@@ -22,6 +22,8 @@ public class Ex06 {
         
         System.out.printf("%d euros e %.1f centimos", euro, cent);*/
         
+        
+        //Com argumentos
         double Input = Double.parseDouble(args[0]);
         double valor, valor1, valor2;
         
