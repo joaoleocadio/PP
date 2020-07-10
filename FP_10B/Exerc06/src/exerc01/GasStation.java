@@ -15,7 +15,7 @@ public class GasStation extends Empresa implements GasService{
     }
 
     /**
-     * 
+     * 6
      * @return
      */
     @Override
@@ -52,7 +52,7 @@ public class GasStation extends Empresa implements GasService{
         }
         return null;
     }
-    
+       
     @Override
     public String toString() {
         String text = "";
