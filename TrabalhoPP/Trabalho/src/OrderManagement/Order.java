@@ -5,6 +5,7 @@
  */
 package OrderManagement;
 
+import Exceptions.ContainerExceptionImpl;
 import java.time.LocalDate;
 import order.base.ICustomer;
 import order.base.IPerson;
@@ -20,45 +21,65 @@ import order.packing.IItem;
  * @author samue
  */
 public class Order implements IOrder {
-
+    private IPerson destination;
+    private ICustomer customer;
+    private IItem[] item;
+    private int id;
+    private int ano, mes, dia;
+    private IShipping[] shipping;
+    private double cost;
+    
     @Override
     public IPerson getDestination() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return destination;
     }
 
     @Override
-    public void setDestination(IPerson arg0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setDestination(IPerson destination) {
+        this.destination = destination;
     }
 
     @Override
     public ICustomer getCustomer() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return customer;
     }
 
     @Override
-    public void setCustomer(ICustomer arg0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setCustomer(ICustomer customer) {
+        this.customer = customer;
     }
 
     @Override
     public IItem[] getItems() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int tmp = 0;
+
+        for (int i = 0; i < item.length; i++) {
+            if (item[i] != null) {
+                tmp++;
+            }
+        }
+        IItem[] newItem = new IItem[tmp];
+        for (int i = 0; i < newItem.length; i++) {
+            newItem[i] = item[i];
+        }
+        return newItem;
     }
 
     @Override
-    public void setId(int arg0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override
     public int getId() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return id;
     }
 
     @Override
-    public void setDate(int arg0, int arg1, int arg2) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setDate(int ano, int mes, int dia) {
+        this.ano = ano;
+        this.dia = dia;
+        this.mes = mes;
     }
 
     @Override
@@ -67,13 +88,38 @@ public class Order implements IOrder {
     }
 
     @Override
-    public boolean add(IItem arg0) throws OrderException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean add(IItem items) throws OrderException {
+        boolean test = false;
+        for (int i = 0; i < item.length; i++) {
+            if (item[i] == null) {
+                items = item[i]);
+                break;
+            } else if (item[item.length - 1] != null) {
+                test = true;
+            }
+        }
+        if (test) {
+            isClosed();
+            throw new OrderException("erro!") {
+            };
+        }
+        return test;
     }
 
     @Override
     public IShipping[] getShippings() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int tmp = 0;
+
+        for (int i = 0; i < shipping.length; i++) {
+            if (shipping[i] != null) {
+                tmp++;
+            }
+        }
+        IShipping[] newItem = new IShipping[tmp];
+        for (int i = 0; i < newItem.length; i++) {
+            newItem[i] = shipping[i];
+        }
+        return newItem;
     }
 
     @Override
@@ -108,7 +154,7 @@ public class Order implements IOrder {
 
     @Override
     public double getCost() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return cost;
     }
 
     @Override
@@ -118,7 +164,14 @@ public class Order implements IOrder {
 
     @Override
     public int getNumberOfItems() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int tmp = 0;
+
+        for (int i = 0; i < item.length; i++) {
+            if (item[i] != null) {
+                tmp++;
+            }
+        }
+        return tmp;
     }
 
     @Override
