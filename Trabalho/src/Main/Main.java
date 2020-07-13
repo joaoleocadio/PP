@@ -10,12 +10,23 @@ import order.exceptions.ContainerException;
 import order.exceptions.OrderException;
 import order.exceptions.PositionException;
 import order.packing.*;
+import order.management.IOrderImporter;
 import packing_gui.PackingGUI;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
+import order.management.IOrder;
 
+/*
+* Nome: <Samuel Luciano Correia da Cunha>
+* Número: <8160526>
+* Turma: <T3>
+*
+* Nome: <João Emanuel Carvalho Leocádio>
+* Número: <8160523>
+* Turma: <T2>
+ */ 
 public class Main {
 
     public static void main(String[] args) throws PositionException, ContainerException, IOException, ParseException, OrderException, org.json.simple.parser.ParseException {
@@ -28,7 +39,7 @@ public class Main {
         address1.setStreet("Rua do Curral");
         address1.setCity("Felgueiras");
         address1.setState("Porto");
-        System.out.println("Address1 Pais: " + address1.getCountry() + ", Numero: " + address1.getNumber() + ", Rua: " + address1.getState() + ", Cidade: " + address1.getCity()
+        System.out.println("Address1 Pais: " + address1.getCountry() + ", Numero: " + address1.getNumber() + ", Rua: " + address1.getStreet()+ ", Cidade: " + address1.getCity()
                 + ", Provincia: " + address1.getState());
         System.out.println("");
 
@@ -63,19 +74,8 @@ public class Main {
         //-----------------Classe Position-----------------//
         System.out.println("INFORMACOES DE POSICAO");
         Position position1 = new Position(3, 0, 0);
-        //position1.setX(3);
-        //position1.setY(0);
-        //position1.setZ(0);
-
         Position position2 = new Position(4, 4, 0);
-        //position1.setX(4);
-        //position1.setY(4);
-        //position1.setZ(0);
-
         Position position3 = new Position(8, 0, 0);
-        //position1.setX(8);
-        //position1.setY(0);
-        //position1.setZ(0);
 
         System.out.println("Posicao1 , X: " + position1.getX() + ", Y: " + position1.getY() + ", Z: " + position1.getZ());
         System.out.println("Posicao2 , X: " + position2.getX() + ", Y: " + position2.getY() + ", Z: " + position2.getZ());
@@ -89,8 +89,7 @@ public class Main {
         System.out.println("PackedItem, Item: " + packedItem.getItem());
         System.out.println("PackedItem, Posicao: " + packedItem.getPosition().toString());
         System.out.println("");
-       
-        
+
         //-----------------Classe Container----------------//
         System.out.println("INFORMACOES DO CONTAINER");
         Container container1 = new Container(500, "REF1", 50, Color.black, 50, Color.white, 50);
@@ -118,22 +117,21 @@ public class Main {
         container1.close();
         System.out.println("O container esta fechado? " + container1.isClosed());
         System.out.println("");
-        
-        
+
         //-----------------------Package OrderManagement--------------//
         //-----------------Classe Shipping----------------//
         System.out.println("INFORMACOES DE ENVIO");
-        Shipping shippingOrder1 = new Shipping(001, customer1);
+        Shipping shippingOrder1 = new Shipping(001);
+        Shipping shippingOrder2 = new Shipping(002);
         shippingOrder1.setShipmentStatus(ShipmentStatus.IN_TREATMENT);
         shippingOrder1.addContainer(container1);
-        shippingOrder1.addContainer(container2);
-        shippingOrder1.removeContainer(container1);
+        // shippingOrder1.removeContainer(container1);
         shippingOrder1.getContainers();
         boolean existCont = shippingOrder1.existsContainer(container2);
         System.out.println("Container 2 existe? " + existCont);
-        shippingOrder1.setDestination(destination1);
-        System.out.println("Cidade de destino: " + shippingOrder1.getDestination().getAddress().getCity());
-        System.out.println("Cliente: " + shippingOrder1.getCustomer().getName());
+        // shippingOrder1.setDestination(destination1);
+        // System.out.println("Cidade de destino: " + shippingOrder1.getDestination().getAddress().getCity());
+        // System.out.println("Cliente: " + shippingOrder1.getCustomer().getName());
         ShipmentStatus status = shippingOrder1.getShipmentStatus();
         System.out.println("Estado do pedido: " + status);
         System.out.println("ID de envio: " + shippingOrder1.getId());
@@ -144,13 +142,40 @@ public class Main {
         System.out.println("Sumario do pedido: ");
         System.out.println(shippingOrder1.summary());
 
-        //-----------------Classe ShippingOrder----------------//
+        //--------------- Classe Order ----------------//
+        System.out.println("");
+        System.out.println("");
+
+        Date date = new Date(12, 11, 1998);
+        
+        IOrder[] orders = new IOrder[2];    
+        orders[0] = new Order(destination1, customer1, 12, 1998, 8, 20, 5);
+        orders[1] = new Order(destination1, customer1, 15, 2000, 9, 14, 10);
+        //System.out.println("Order" + orders[0].toString());
+        //System.out.println("Order" + orders[1].toString());
+        orders[0].add(item1);
+        orders[0].add(item2);
+        orders[1].add(item1);
+        orders[1].add(item2);
+        orders[0].addShipping(shippingOrder1);
+        
+        System.out.println("Order" + orders[0].toString());
+        //order1.addShipping(shippingOrder1);
+        //order1.setCost(29);
+        Management man1 = new Management();
+        // order1.addShipping(shippingOrder2);
+        // order1.removeShipping(shippingOrder2);
+
         //-----------------Classe Exporter---------------------//
-        Exporter exporter = new Exporter();
-        exporter.export(shippingOrder1);
+        Exporter exporter = new Exporter(orders[0],"Order1.json");
+        //Import importer = new Import();
+        Exporter exp = new Exporter(orders[1], "Order1.json");
+        exp.setGraficOrders(orders);
+        exp.setGraphBarPath("graficoBarras.json");
+        exp.export();
 
         //-----------------Classe Exporter---------------------//
         //-----------------------Package ShippingOrder--------------//
-        // PackingGUI.render("example2.json");
+        //PackingGUI.render("import.json");
     }
 }

@@ -10,9 +10,14 @@ import order.management.ShipmentStatus;
 import Exceptions.*;
 import java.util.Arrays;
 
-/**
- *
- * @author samue
+/*
+* Nome: <Samuel Luciano Correia da Cunha>
+* Número: <8160526>
+* Turma: <T3>
+*
+* Nome: <João Emanuel Carvalho Leocádio>
+* Número: <8160523>
+* Turma: <T2>
  */
 public class Shipping implements IShipping {
 
@@ -20,19 +25,18 @@ public class Shipping implements IShipping {
     private IPerson destination;
     private IContainer[] containers = new IContainer[10];
     private ShipmentStatus status = ShipmentStatus.AWAITS_TREATMENT;
-    private ICustomer customer;
     private int count = 0;
 
     /**
      * Construtor de Shipping
      *
-     * @param orderId
-     * @param customer
+     * @param orderId id da order a inserir (inteiro)
      */
-    public Shipping(int orderId, ICustomer customer) {
+    public Shipping(int orderId) {
         this.orderId = orderId;
-        this.customer = customer;
     }
+
+    
 
     /**
      * Verifica se o estado da order esta em tratamento. Se o mesmo nao estiver
@@ -141,33 +145,6 @@ public class Shipping implements IShipping {
     }
 
     /**
-     * Metodo que retorna a informacao sobre o destino
-     *
-     * @return destination
-     */
-    public IPerson getDestination() {
-        return this.destination;
-    }
-
-    /**
-     * Metodo que atribui/define o destino
-     *
-     * @param person
-     */
-    public void setDestination(IPerson person) {
-        this.destination = person;
-    }
-
-    /**
-     * Metodo que retorna o cliente
-     *
-     * @return customer
-     */
-    public ICustomer getCustomer() {
-        return this.customer;
-    }
-
-    /**
      * Metodo que retorna o estado do envio
      *
      * @return status
@@ -187,17 +164,17 @@ public class Shipping implements IShipping {
     }
 
     /**
-     * Metodo que define o estado do pedido: 
-     * - Caso o estado do pedido seja "AWAITS_TREATMENT", o mesmo so pode ser 
-     * alterado para "IN_TREATMENT" visto que nao faz sentido saltar estados 
-     * - Caso o estado do pedido esteja "IN_TREATMENT", so pode ser alterado para 
-     * "CLOSED" pelas mesmas razoes acima ditas. Caso seja encontrado o container, 
-     * é corrido o metodo "validate()"
-     * - Caso o estado do pedido seja "SHIPPED", so pode ser alterado para "CLOSED"
-     * 
+     * Metodo que define o estado do pedido: - Caso o estado do pedido seja
+     * "AWAITS_TREATMENT", o mesmo so pode ser alterado para "IN_TREATMENT"
+     * visto que nao faz sentido saltar estados - Caso o estado do pedido esteja
+     * "IN_TREATMENT", so pode ser alterado para "CLOSED" pelas mesmas razoes
+     * acima ditas. Caso seja encontrado o container, é corrido o metodo
+     * "validate()" - Caso o estado do pedido seja "SHIPPED", so pode ser
+     * alterado para "CLOSED"
+     *
      *
      * @param status
-     * @throws OrderExceptionImpl caso haja um erro na order ou nao seja 
+     * @throws OrderExceptionImpl caso haja um erro na order ou nao seja
      * compativel para mudanca de estado
      * @throws ContainerExceptionImpl caso nao seja encontrado nenhum container
      * no array
@@ -207,7 +184,9 @@ public class Shipping implements IShipping {
     public void setShipmentStatus(ShipmentStatus status) throws OrderExceptionImpl, ContainerExceptionImpl, PositionExceptionImpl, ContainerException, PositionException {
         int counter = 0;
         if (status instanceof ShipmentStatus) {
-            if (status == ShipmentStatus.IN_TREATMENT && this.status == ShipmentStatus.AWAITS_TREATMENT) {
+            if (status == ShipmentStatus.CANCELLED && this.status == ShipmentStatus.IN_TREATMENT) {
+                this.status = ShipmentStatus.CANCELLED;
+            } else if (status == ShipmentStatus.IN_TREATMENT && this.status == ShipmentStatus.AWAITS_TREATMENT) {
                 this.status = ShipmentStatus.IN_TREATMENT;
             } else if (status == ShipmentStatus.CLOSED && this.status == ShipmentStatus.IN_TREATMENT) {
                 for (int i = 0; i < this.containers.length; i++) {
@@ -270,25 +249,40 @@ public class Shipping implements IShipping {
 
     /**
      * Metodo que obtem o custo do container
+     *
      * @return
      */
     @Override
     public double getCost() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-     /**
+
+    /**
      * Pequeno sumario do interior da ShippingOrder
+     *
      * @return String
      */
     @Override
     public String summary() {
-        return "ShippingOrder{" +
-                "id=" + orderId +
-                ", customer=" + customer +
-                ", destination=" + destination +
-                ", containers=" + Arrays.toString(containers) +
-                ", orderStatus=" + status +
-                '}';
+        return "ShippingOrder{"
+                + "id=" + orderId
+                + ", destination=" + destination
+                + ", containers=" + Arrays.toString(containers)
+                + ", orderStatus=" + status
+                + '}';
     }
+
+    /*
+    public IPerson getDestination() {
+        return this.destination;
+    }
+
+    public void setDestination(IPerson person) {
+        this.destination = person;
+    }
+
+    public ICustomer getCustomer() {
+        return this.customer;
+    }
+     */
 }
