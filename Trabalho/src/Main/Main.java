@@ -3,20 +3,17 @@ package Main;
 import OrderManagement.*;
 import OrderPacking.*;
 import Person.*;
-import Exceptions.*;
-import order.base.ICustomer;
+import order.management.IOrder;
 import order.management.ShipmentStatus;
 import order.exceptions.ContainerException;
 import order.exceptions.OrderException;
 import order.exceptions.PositionException;
 import order.packing.*;
-import order.management.IOrderImporter;
 import packing_gui.PackingGUI;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
-import order.management.IOrder;
+
 
 /*
 * Nome: <Samuel Luciano Correia da Cunha>
@@ -26,11 +23,15 @@ import order.management.IOrder;
 * Nome: <João Emanuel Carvalho Leocádio>
 * Número: <8160523>
 * Turma: <T2>
- */ 
-public class Main {
+ */
 
+/**
+ *
+ * @author samue
+ */
+
+public class Main {
     public static void main(String[] args) throws PositionException, ContainerException, IOException, ParseException, OrderException, org.json.simple.parser.ParseException {
-        //----------------Package Person------------------//
         //-----------------Classe Address-----------------//
         System.out.println("INFORMACOES DE MORADA");
         Address address1 = new Address();
@@ -39,7 +40,7 @@ public class Main {
         address1.setStreet("Rua do Curral");
         address1.setCity("Felgueiras");
         address1.setState("Porto");
-        System.out.println("Address1 Pais: " + address1.getCountry() + ", Numero: " + address1.getNumber() + ", Rua: " + address1.getStreet()+ ", Cidade: " + address1.getCity()
+        System.out.println("Address1 Pais: " + address1.getCountry() + ", Numero: " + address1.getNumber() + ", Rua: " + address1.getState() + ", Cidade: " + address1.getCity()
                 + ", Provincia: " + address1.getState());
         System.out.println("");
 
@@ -61,7 +62,6 @@ public class Main {
         System.out.println("Destination1 Morada" + destination1.getAddress().toString());
         System.out.println("");
 
-        //-----------------------Package OrderPacking--------------------//
         //-----------------Classe Item-----------------//
         System.out.println("INFORMACOES DO(S) ITEM(S)");
         Item item1 = new Item("REF1", "Item 1", 4, 4, 4);
@@ -95,20 +95,21 @@ public class Main {
         Container container1 = new Container(500, "REF1", 50, Color.black, 50, Color.white, 50);
         container1.addItem(item1, position1, Color.green);
         container1.addItem(item2, position2, Color.black);
-        container1.addItem(item3, position3, Color.black);
-        container1.addItem(item3, position3, Color.black);
-        //Container 2 criado para adicionar a Shipping Order
+        container1.addItem(item3, position3, Color.silver);
+        container1.addItem(item3, position3, Color.fuchsia);
+
         Container container2 = new Container(500, "REF2", 50, Color.lime, 50, Color.maroon, 50);
         container2.addItem(item1, position1, Color.purple);
-        container2.addItem(item2, position2, Color.black);
-        container2.addItem(item3, position3, Color.black);
+        container2.addItem(item2, position2, Color.olive);
+        container2.addItem(item3, position3, Color.white);
         container2.close();
 
+        // Manipulacao de metodos de Container
         container1.removeItem(item3);
         Item itemPesquisado = (Item) container1.getItem("REF2");
         System.out.println("Item Encontrado: " + itemPesquisado.getReference());
-        IItemPacked[] itemsDentro = container1.getPackedItems();
-        System.out.println("Tamanho do Array Novo: " + itemsDentro.length);
+        IItemPacked[] itemsEmpacotados = container1.getPackedItems();
+        System.out.println("Tamanho do Array Novo: " + itemsEmpacotados.length);
         System.out.println("Volume ocupado: " + container1.getOccupiedVolume());
         System.out.println("Referencia do container: " + container1.getReference());
         System.out.println("Numero de itens no container: " + container1.getNumberOfItems());
@@ -118,20 +119,17 @@ public class Main {
         System.out.println("O container esta fechado? " + container1.isClosed());
         System.out.println("");
 
-        //-----------------------Package OrderManagement--------------//
         //-----------------Classe Shipping----------------//
         System.out.println("INFORMACOES DE ENVIO");
-        Shipping shippingOrder1 = new Shipping(001);
-        Shipping shippingOrder2 = new Shipping(002);
+        Shipping shippingOrder1 = new Shipping(001, 12);
+        Shipping shippingOrder2 = new Shipping(002, 14);
         shippingOrder1.setShipmentStatus(ShipmentStatus.IN_TREATMENT);
         shippingOrder1.addContainer(container1);
-        // shippingOrder1.removeContainer(container1);
         shippingOrder1.getContainers();
         boolean existCont = shippingOrder1.existsContainer(container2);
         System.out.println("Container 2 existe? " + existCont);
-        // shippingOrder1.setDestination(destination1);
-        // System.out.println("Cidade de destino: " + shippingOrder1.getDestination().getAddress().getCity());
-        // System.out.println("Cliente: " + shippingOrder1.getCustomer().getName());
+
+        // Manipulacao de metodos de Shipping
         ShipmentStatus status = shippingOrder1.getShipmentStatus();
         System.out.println("Estado do pedido: " + status);
         System.out.println("ID de envio: " + shippingOrder1.getId());
@@ -141,41 +139,54 @@ public class Main {
         shippingOrder1.validate();
         System.out.println("Sumario do pedido: ");
         System.out.println(shippingOrder1.summary());
+        System.out.println("");
 
-        //--------------- Classe Order ----------------//
+        //--------------- Classe Order e Date ----------------//
         System.out.println("");
         System.out.println("");
 
         Date date = new Date(12, 11, 1998);
+        Order order1 = new Order(destination1, customer1, 1, date, 20);
+        order1.addShipping(shippingOrder1);
+
+        IOrder[] orders = new IOrder[2];
+        orders[0] = new Order(destination1, customer1, 1, date, 10);
+        orders[1] = new Order(destination1, customer1, 2, date, 5);
         
-        IOrder[] orders = new IOrder[2];    
-        orders[0] = new Order(destination1, customer1, 12, 1998, 8, 20, 5);
-        orders[1] = new Order(destination1, customer1, 15, 2000, 9, 14, 10);
-        //System.out.println("Order" + orders[0].toString());
-        //System.out.println("Order" + orders[1].toString());
         orders[0].add(item1);
         orders[0].add(item2);
         orders[1].add(item1);
         orders[1].add(item2);
         orders[0].addShipping(shippingOrder1);
-        
+
         System.out.println("Order" + orders[0].toString());
-        //order1.addShipping(shippingOrder1);
-        //order1.setCost(29);
-        Management man1 = new Management();
+        // order1.addShipping(shippingOrder1);
+        // order1.setCost(29);
         // order1.addShipping(shippingOrder2);
         // order1.removeShipping(shippingOrder2);
 
+        
+        //-----------------Classe Management---------------------//
+        Management man1 = new Management();
+        // man1.add(order1);
+        // man1.remove(order1);
+        
         //-----------------Classe Exporter---------------------//
-        Exporter exporter = new Exporter(orders[0],"Order1.json");
-        //Import importer = new Import();
-        Exporter exp = new Exporter(orders[1], "Order1.json");
-        exp.setGraficOrders(orders);
-        exp.setGraphBarPath("graficoBarras.json");
-        exp.export();
+        // EXPORTAR GRAFICO DE BARRAS
+        Exporter exportGraphicBar = new Exporter(orders[1]);
+        exportGraphicBar.setTotalOrders(orders);
+        exportGraphicBar.setBarGraphPath("barGraphic.json");
+        exportGraphicBar.export();
+        
+        // EXPORTAR A ORDER
+        Exporter exporterOrder = new Exporter();
+        exporterOrder.export(order1);
 
-        //-----------------Classe Exporter---------------------//
+        //-----------------Classe Importer---------------------//
+        Import importer = new Import();
+        importer.importData(order1, "import.json");
+
         //-----------------------Package ShippingOrder--------------//
-        //PackingGUI.render("import.json");
+        PackingGUI.render("import.json");
     }
 }

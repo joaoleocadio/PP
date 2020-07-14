@@ -20,147 +20,140 @@ import org.json.simple.JSONObject;
  */
 public class Exporter implements IExporter {
 
-    private String filePath = "export.json";
-    private String file = "graficoBarras.json";
-    private IOrder[] graficOrders;
+    private String exportPath = "export.json";
+    private String barPath = "barGraphic.json";
+    private IOrder[] totalOrders;
     private IOrder order;
-    private String GUIpath;
-    private String GraphBarPath;
-    private String GraphPiePath;
-    private String OrderInfoPath;
+    private String BarGraphPath;
 
-    public IOrder[] getGraficOrders() {
-        return graficOrders;
+    public Exporter() {
     }
 
-    public void setGraficOrders(IOrder[] graficOrders) {
-        this.graficOrders = graficOrders;
-    }
-
-    
-    
-    public Exporter(IOrder order, String GUIpath) {
-        this.order = order;
-        this.GUIpath = GUIpath;
-    }
-
-    public IOrder getOrder() {
-        return order;
-    }
-
-    public void setOrder(IOrder order) {
+    /**
+     * Construtor de Exporter
+     *
+     * @param order order do tipo IOrder
+     */
+    public Exporter(IOrder order) {
         this.order = order;
     }
 
-    public String getGUIpath() {
-        return GUIpath;
+    /**
+     * Metodo para obter o total de orders
+     *
+     * @return total de orders do tipo IOrder
+     */
+    public IOrder[] getTotalOrders() {
+        return totalOrders;
     }
 
-    public void setGUIpath(String GUIpath) {
-        this.GUIpath = GUIpath;
+    /**
+     * Metodo para atribuir o total das orders
+     *
+     * @param totalOrders a atribuir do tipo IOrder
+     */
+    public void setTotalOrders(IOrder[] totalOrders) {
+        this.totalOrders = totalOrders;
     }
 
-    public String getGraphBarPath() {
-        return GraphBarPath;
+    /**
+     * Metodo para obter o caminho do grafico de barras
+     *
+     * @return caminho do grafico de barras
+     */
+    public String getBarGraphPath() {
+        return BarGraphPath;
     }
 
-    public void setGraphBarPath(String GraphBarPath) {
-        this.GraphBarPath = GraphBarPath;
+    /**
+     * Metodo que atribui o caminho do grafico de barras
+     *
+     * @param path caminho a atribuir (String)
+     */
+    public void setBarGraphPath(String path) {
+        this.BarGraphPath = path;
     }
 
-    public String getGraphPiePath() {
-        return GraphPiePath;
-    }
-
-    public void setGraphPiePath(String GraphPiePath) {
-        this.GraphPiePath = GraphPiePath;
-    }
-
-    public String getOrderInfoPath() {
-        return OrderInfoPath;
-    }
-
-    public void setOrderInfoPath(String OrderInfoPath) {
-        this.OrderInfoPath = OrderInfoPath;
-    }
-       
-    
-    
+    /**
+     * Metodo que faz o export do grafico de barras para o formato json
+     *
+     * @throws IOException
+     */
     @Override
     public void export() throws IOException {
-        try (FileWriter file = new FileWriter(this.GraphBarPath)){
-            file.write(serializeBarGraph().toJSONString());
+        try ( FileWriter file = new FileWriter(this.BarGraphPath)) {
+            file.write(WriteBarGraph().toJSONString());
+        } catch (IOException e) {
+            System.out.println(e.toString());
         }
     }
-    
+
     /**
-     * Metodo que ira fazer export da order para json
-     * 
+     * Metodo que faz o export da order para o formato json
+     *
      * @param order order a ser exportada
-     * @throws IOException 
+     * @throws IOException
      */
     public void export(IOrder order) throws IOException {
         try {
             Gson gson = new Gson();
-            FileWriter fileWriter = new FileWriter(filePath);
+            FileWriter fileWriter = new FileWriter(exportPath);
             gson.toJson(order, fileWriter);
             fileWriter.close();
-            System.out.println("Formato JSON escrito com sucesso para o ficheiro: " + filePath);
-        }
-        
-        catch (IOException e) {
+            System.out.println("Formato JSON escrito com sucesso para o ficheiro: " + exportPath);
+        } catch (IOException e) {
             System.out.println(e.toString());
         }
-
     }
-    
-    private JSONObject serializeBarGraph() throws IOException {
-        JSONObject obj = new JSONObject();
+
+    /**
+     * Metodo que ira fazer o grafico de barras de acordo com o proferido no
+     * enunciado do trabalho pratico
+     * @return 
+     */
+    private JSONObject WriteBarGraph() {
+        JSONObject object = new JSONObject();
         JSONObject data = new JSONObject();
         JSONArray dataSets = new JSONArray();
         JSONArray labels = new JSONArray();
-        JSONObject cost = new JSONObject();
-        JSONArray costArray = new JSONArray();
-        JSONObject numshippings = new JSONObject();
-        JSONArray numshippingsArray = new JSONArray();
-        JSONObject numContainers = new JSONObject();
-        JSONArray numContainersArray = new JSONArray();
-        int tmp = 0;
-        
-        for (IOrder ord : this.graficOrders){
-            costArray.add(ord.getCost());
-            numshippingsArray.add(ord.getShippings().length);
-            for (IShipping ship : ord.getShippings()){
-                tmp += ship.getContainers().length;
+        JSONObject orderCost = new JSONObject();
+        JSONArray orderCostArray = new JSONArray();
+        JSONObject numberOfContainers = new JSONObject();
+        JSONArray numberOfContainersArray = new JSONArray();
+        int count = 0;
+
+        // percorrer todas as orders
+        for (IOrder order : this.totalOrders) {
+            orderCostArray.add(order.getCost()); // adicionar o custo das orders
+            for (IShipping ship : order.getShippings()) {
+                count += ship.getContainers().length; // buscar o numero de containers da order
             }
-            numContainersArray.add(tmp);
+            numberOfContainersArray.add(count);
         }
-        
-        cost.put("data", costArray);
-        cost.put("label", "Order cost");
-        
-        numshippings.put("data", numshippingsArray);
-        numshippings.put("label", "Number of shipments");
-        
-        numContainers.put("data", numContainersArray);
-        numContainers.put("label", "Number of containers");
-        
-        dataSets.add(cost);
-        dataSets.add(numContainers);
-        dataSets.add(numshippings);
-        
-        for (int i = 0; i < this.graficOrders.length; i++){
+
+        orderCost.put("data", orderCostArray); // escrever o custo da order no array de custo
+        orderCost.put("label", "Order cost"); // apresentar a label
+
+        numberOfContainers.put("data", numberOfContainersArray); // escrever o numero de containers da order no array de containers
+        numberOfContainers.put("label", "Number of containers"); // apresentar a label
+
+        dataSets.add(orderCost); // adicionar o custo da Order ao dataset
+        dataSets.add(numberOfContainers); // adicionar o numero de containers da order ao dataset
+
+        // percorrer todas as orders para adicionar às labels
+        for (int i = 0; i < this.totalOrders.length; i++) {
             labels.add("Order" + (i + 1));
         }
-        
+
         data.put("datasets", dataSets);
         data.put("labels", labels);
-        
-        obj.put("type", "pie");
-        obj.put("data", data);
-        obj.put("type", "bar");
-        obj.put("title", "order costs and number of shipments and containers");
-        
-        return obj;
+
+        object.put("data", data);
+        object.put("type", "bar");
+        object.put("title", "Order costs and number of containers");
+
+        System.out.println("Grafico de barras escrito com sucesso para o ficheiro: " + barPath);
+
+        return object;
     }
 }
